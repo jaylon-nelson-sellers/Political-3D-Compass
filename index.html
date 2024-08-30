@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Political Axies</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #container { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = d3.select("#container")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${width/2},${height/2})`);
+
+        const scale = d3.scaleLinear()
+            .domain([-7, 7])
+            .range([-height, height]);
+
+        let points;
+        let rotation = [0, 0];
+
+        // Load data from CSV file
+        d3.csv("pros_data.csv").then(data => {
+            // Convert string values to numbers
+            data.forEach(d => {
+                d.x = +d.x;
+                d.y = +d.y;
+                d.z = +d.z;
+            });
+
+            points = g.selectAll("g")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "point");
+            points.append("image")
+            
+                .attr("xlink:href", d => `pokemon_images/${d.name.toLowerCase().replace(/ /g, "_")}.png`)
+                .attr("width", 50)
+                .attr("height", 50)
+                .attr("x", -25)
+                .attr("y", -25);
+
+            updatePositions();
+            setupDragBehavior();
+        }).catch(error => {
+            console.error("Error loading the CSV file:", error);
+        });
+
+        function updatePositions() {
+            points.attr("transform", d => `translate(${scale(d.x)},${scale(d.y)})`);
+        }
+
+        function setupDragBehavior() {
+            let dragStartX, dragStartY;
+
+            svg.call(d3.drag()
+                .on("start", (event) => {
+                    dragStartX = event.x;
+                    dragStartY = event.y;
+                })
+                .on("drag", (event) => {
+                    const dx = event.x - dragStartX;
+                    const dy = event.y - dragStartY;
+                    rotation[0] += dy * 0.005;
+                    rotation[1] += dx * 0.005;
+                    updateRotation();
+                    dragStartX = event.x;
+                    dragStartY = event.y;
+                })
+            );
+        }
+
+        function updateRotation() {
+            const [rx, ry] = rotation;
+            const cosX = Math.cos(rx);
+            const sinX = Math.sin(rx);
+            const cosY = Math.cos(ry);
+            const sinY = Math.sin(ry);
+
+            points.attr("transform", d => {
+                const x = d.x * cosY - d.z * sinY;
+                const y = d.y * cosX + (d.x * sinY + d.z * cosY) * sinX;
+                const z = d.y * -sinX + (d.x * sinY + d.z * cosY) * cosX;
+                return `translate(${scale(x)},${scale(y)})`;
+            });
+
+            points.sort((a, b) => {
+                const az = a.y * -sinX + (a.x * sinY + a.z * cosY) * cosX;
+                const bz = b.y * -sinX + (b.x * sinY + b.z * cosY) * cosX;
+                return bz - az;
+            });
+        }
+    </script>
+</body>
+</html>
