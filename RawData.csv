@@ -1,4 +1,4 @@
-Entity,Left-Right,Authoritarian-Libertarian,Socialist-Capitalist,Planned-Laissez Faire,Authoritarian-Libertarian,Autocracy-Democracy,Universal-Particular,Nationalist-Globalist,Progress-Tradition,Conserve-Reform,Acceleration-Deceleration,Transhumanism-Primitivism,Common Law-Civil Law,Punishment-Rehabilitation,Equality-Hierarchy,Monocultural-Multicultural,Compromise-Persist,Transitional-Direct,Moderate-Radical,Politicized-Apolitical
+,Left-Right,Authoritarian-Libertarian,Socialist-Capitalist,Planned-Laissez Faire,Authoritarian-Libertarian,Autocracy-Democracy,Universal-Particular,Nationalist-Globalist,Progress-Tradition,Conserve-Reform,Acceleration-Deceleration,Transhumanism-Primitivism,Common Law-Civil Law,Punishment-Rehabilitation,Equality-Hierarchy,Monocultural-Multicultural,Compromise-Persist,Transitional-Direct,Moderate-Radical,Politicized-Apolitical
 Tim Waltz,0.3,0.4,0.3,0.4,0.4,0.9,0.7,0.3,0.8,0.7,0.6,0.5,0.5,0.8,0.8,0.8,0.6,0.6,0.4,0.9
 Kamala Harris,0.3,0.6,0.4,0.7,0.6,0.1,0.7,0.7,0.8,0.8,0.7,0,0.5,0.6,0.8,0.8,0.5,0.6,0.6,0.9
 Donald Trump,0.8,0.7,0.8,0.6,0.7,0.4,0.3,0.9,0.8,0.6,0.5,0.2,0.7,0.8,0.8,0.2,0.2,0.7,0.8,1
@@ -17,3 +17,17 @@ George Washington,0.6,0.5,0.7,0.6,0.5,0.2,0.4,0.7,0.6,0.5,0.5,0.1,0.3,0.4,0.6,0.
 Theodore Roosevelt,0.4,0.7,0.4,0.3,0.7,0.2,0.6,0.7,0.6,0.8,0.7,0,0.5,0.4,0.5,0.3,0.3,0.7,0.7,0.9
 Ronald Reagan,0.8,0.6,0.8,0.8,0.6,0.1,0.7,0.8,0.8,0.3,0.6,0.4,0.7,0.7,0.7,0.3,0.4,0.5,0.7,0.9
 Jimmy Carter,0.4,0.7,0.5,0.6,0.7,0.9,0.8,0.7,0.6,0.7,0.5,0.4,0.5,0.8,0.8,0.7,0.6,0.5,0.4,0.9
+Nelson Mandela,0.4,0.3,0.5,0.4,0.3,0.9,0.7,0.6,0.7,0.8,0.5,0,0.5,0.8,0.9,0.9,0.7,0.6,0.6,1
+Mao Zedong,0.1,0.9,0.1,0.1,0.9,0.1,0.3,0.8,0.2,0.9,0.7,0.3,0.9,0.3,0.8,0.1,0.1,0.8,0.9,1
+Xi Jingping,0.2,0.9,0.3,0.2,0.9,0.1,0.3,0.8,0.6,0.4,0.7,0.6,0.9,0.3,0.2,0.2,0.1,0.8,0.8,0.9
+mlk,0.2,0.3,0.3,0.3,0.3,0.9,0.8,0.7,0.8,0.9,0.6,0,0.5,0.8,0.9,0.8,0.5,0.7,0.7,1
+Malcolm X,0.2,0.4,0.3,0.2,0.4,0.5,0.7,0.6,0.6,0.8,0.5,0.5,0.5,0.6,0.2,0.7,0.3,0.8,0.8,0.9
+Napoleon,0.6,0.9,0.4,0.7,0.9,0.9,0.8,0.7,0.6,0.7,0.7,0.5,0.8,0.4,0.8,0.4,0.3,0.8,0.8,0.9
+Vladimir Putin,0.8,0.9,0.6,0.7,0.9,0.9,0.8,0.9,0.8,0.3,0.6,0.3,0.8,0.7,0.8,0.2,0.2,0.7,0.7,0.9
+Vladimir Lenin,0.9,0.9,0.95,0.9,0.9,0.2,0.8,0.2,0.9,0.9,0.7,0.6,0.9,0.3,0.8,0.6,0.2,0.8,0.9,1
+Karl Marx,0.1,0.6,0.1,0.1,0.7,0.3,0.8,0.2,0.9,0.9,0.8,0.7,0.6,0.7,0.9,0.7,0.2,0.3,0.9,1
+Joseph Stalin,0.1,0.9,0.1,0.1,0.9,0.9,0.3,0.7,0.4,0.8,0.7,0.6,0.9,0.2,0.3,0.3,0.1,0.8,0.9,0.9
+Hugo Chavez,0.9,0.8,0.9,0.9,0.8,0.6,0.7,0.3,0.7,0.8,0.6,0,0.8,0.6,0.8,0.6,0.8,0.7,0.8,1
+Adolf Hitler,1,0.95,0.6,0.8,0.95,1,0.2,0.95,0.8,0.9,0.7,0.3,0.9,0.9,0.9,0.1,0.1,0.9,1,1
+Augusto Pinochet,0.9,0.9,0.8,0.2,0.9,0.9,0.3,0.9,0.8,0.2,0.5,0.1,0.7,0.8,0.9,0.2,0.2,0.8,0.8,0.9
+Julius Caesar,0.6,0.8,0.4,0.6,0.8,0.8,0.7,0.6,0.6,0.7,0.6,0,0.7,0.4,0.7,0.6,0.5,0.8,0.8,1
