@@ -22,7 +22,7 @@
             .attr("height", height);
 
         const g = svg.append("g")
-            .attr("transform", `translate(${width/2},${height/2})`);
+            .attr("transform", translate(${width/2},${height/2}));
 
         const scale = d3.scaleLinear()
             .domain([-16, 16])
@@ -46,8 +46,8 @@
                 .append("g")
                 .attr("class", "point");
             points.append("image")
-            
-                .attr("xlink:href", d => `images/${d.Entity.toLowerCase().replace(/ /g, "_")}.png`)
+
+                .attr("xlink:href", d => images/${d.Entity.toLowerCase().replace(/ /g, "_")}.png)
                 .attr("width", 50)
                 .attr("height", 50)
                 .attr("x", -25)
@@ -60,7 +60,7 @@
         });
 
         function updatePositions() {
-            points.attr("transform", d => `translate(${scale(d.x)},${scale(d.y)})`);
+            points.attr("transform", d => translate(${scale(d.x)},${scale(d.y)}));
         }
 
         function setupDragBehavior() {
@@ -94,7 +94,7 @@
                 const x = d.x * cosY - d.z * sinY;
                 const y = d.y * cosX + (d.x * sinY + d.z * cosY) * sinX;
                 const z = d.y * -sinX + (d.x * sinY + d.z * cosY) * cosX;
-                return `translate(${scale(x)},${scale(y)})`;
+                return translate(${scale(x)},${scale(y)});
             });
 
             points.sort((a, b) => {
