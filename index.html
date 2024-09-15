@@ -3,110 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Political Axes</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <title>3D Political Compass Graph</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow: hidden; touch-action: none; }
         #container { width: 100vw; height: 100vh; }
-        .axis-line { stroke: #888; stroke-width: 1; }
-        .axis-label { font-size: 12px; fill: #888; }
+        .axis-line { stroke: rgba(0, 0, 0, 0.2); stroke-width: 1.5; }
+        .axis-label { fill: rgba(0, 0, 0, 0.4); font-size: 10px; }
+        .controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .control-button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="container"></div>
+    <div class="controls">
+        <button id="zoom-in" class="control-button">Zoom In</button>
+        <button id="zoom-out" class="control-button">Zoom Out</button>
+        <button id="image-size-control" class="control-button">Size: Medium</button>
+    </div>
     <script>
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        const svg = d3.select("#container")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
-
-        const g = svg.append("g")
-            .attr("transform", `translate(${width/2},${height/2})`);
-
-        const scale = d3.scaleLinear()
-            .domain([-16, 16])
-            .range([-height/2, height/2]);
-
-        let points;
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let scale, svg, g, points;
         let rotation = [0, 0];
+        let translation = [0, 0];
+        let zoomLevel = 1;
+        let imageSize = 50;
+        let imageSizeState = 'medium';
+        let isMobile = 'ontouchstart' in window;
 
-        // Add axis lines
-        const axisData = [
-            {axis: 'x', start: [-16, 0, 0], end: [16, 0, 0], label: 'X-axis'},
-            {axis: 'y', start: [0, -16, 0], end: [0, 16, 0], label: 'Y-axis'},
-            {axis: 'z', start: [0, 0, -16], end: [0, 0, 16], label: 'Z-axis'}
-        ];
+        function initializeGraph() {
+            d3.select("#container").selectAll("*").remove();
 
-        const axisLines = g.selectAll(".axis-line")
-            .data(axisData)
-            .enter()
-            .append("line")
-            .attr("class", "axis-line");
+            svg = d3.select("#container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
 
-        const axisLabels = g.selectAll(".axis-label")
-            .data(axisData)
-            .enter()
-            .append("text")
-            .attr("class", "axis-label")
-            .text(d => d.label);
+            g = svg.append("g")
+                .attr("transform", `translate(${width/2},${height/2})`);
 
-        // Load data from CSV file
-        d3.csv("pros_data.csv").then(data => {
-            // Convert string values to numbers
-            data.forEach(d => {
-                d.x = +d.x;
-                d.y = +d.y;
-                d.z = +d.z;
+            updateScale();
+
+            // Add axes
+            const axisLength = scale(30) - scale(0);
+            const axes = g.append("g").attr("class", "axes");
+            
+            // X-axis
+            axes.append("line")
+                .attr("class", "axis-line")
+                .attr("x1", -axisLength).attr("y1", 0)
+                .attr("x2", axisLength).attr("y2", 0);
+            axes.append("text")
+                .attr("class", "axis-label")
+                .attr("x", axisLength + 5).attr("y", 3)
+                .text("X");
+
+            // Y-axis
+            axes.append("line")
+                .attr("class", "axis-line")
+                .attr("x1", 0).attr("y1", -axisLength)
+                .attr("x2", 0).attr("y2", axisLength);
+            axes.append("text")
+                .attr("class", "axis-label")
+                .attr("x", 3).attr("y", -axisLength - 5)
+                .text("Y");
+
+            // Z-axis
+            axes.append("line")
+                .attr("class", "axis-line")
+                .attr("x1", 0).attr("y1", 0)
+                .attr("x2", axisLength * Math.cos(Math.PI/4)).attr("y2", -axisLength * Math.sin(Math.PI/4));
+            axes.append("text")
+                .attr("class", "axis-label")
+                .attr("x", axisLength * Math.cos(Math.PI/4) + 5)
+                .attr("y", -axisLength * Math.sin(Math.PI/4) - 5)
+                .text("Z");
+        }
+
+        function updateScale() {
+            scale = d3.scaleLinear()
+                .domain([-100 / zoomLevel, 100 / zoomLevel])
+                .range([-Math.min(width, height) / 2, Math.min(width, height) / 2]);
+        }
+
+        function loadData() {
+            d3.csv("data1.csv").then(data => {
+                data.forEach(d => {
+                    d.x = +d.x;
+                    d.y = +d.y;
+                    d.z = +d.z;
+                });
+
+                points = g.selectAll("g.point")
+                    .data(data)
+                    .enter()
+                    .append("g")
+                    .attr("class", "point");
+                
+                points.append("image")
+                    .attr("xlink:href", d => `images/${d.Character.toLowerCase().replace(/ /g, "_")}.png`)
+                    .attr("width", imageSize)
+                    .attr("height", imageSize)
+                    .attr("x", -imageSize/2)
+                    .attr("y", -imageSize/2);
+
+                updatePositions();
+                setupInteractions();
+            }).catch(error => {
+                console.error("Error loading the CSV file:", error);
             });
-
-            points = g.selectAll("g.point")
-                .data(data)
-                .enter()
-                .append("g")
-                .attr("class", "point");
-
-            points.append("image")
-                .attr("xlink:href", d => `images/${d.Entity.toLowerCase().replace(/ /g, "_")}.png`)
-                .attr("width", 50)
-                .attr("height", 50)
-                .attr("x", -25)
-                .attr("y", -25);
-
-            updatePositions();
-            setupDragBehavior();
-        }).catch(error => {
-            console.error("Error loading the CSV file:", error);
-        });
+        }
 
         function updatePositions() {
-            points.attr("transform", d => `translate(${scale(d.x)},${scale(d.y)})`);
-            updateAxisLines();
-        }
-
-        function setupDragBehavior() {
-            let dragStartX, dragStartY;
-
-            svg.call(d3.drag()
-                .on("start", (event) => {
-                    dragStartX = event.x;
-                    dragStartY = event.y;
-                })
-                .on("drag", (event) => {
-                    const dx = event.x - dragStartX;
-                    const dy = event.y - dragStartY;
-                    rotation[0] += dy * 0.005;
-                    rotation[1] += dx * 0.005;
-                    updateRotation();
-                    dragStartX = event.x;
-                    dragStartY = event.y;
-                })
-            );
-        }
-
-        function updateRotation() {
             const [rx, ry] = rotation;
             const cosX = Math.cos(rx);
             const sinX = Math.sin(rx);
@@ -117,7 +138,7 @@
                 const x = d.x * cosY - d.z * sinY;
                 const y = d.y * cosX + (d.x * sinY + d.z * cosY) * sinX;
                 const z = d.y * -sinX + (d.x * sinY + d.z * cosY) * cosX;
-                return `translate(${scale(x)},${scale(y)})`;
+                return `translate(${scale(x) + translation[0]},${scale(y) + translation[1]})`;
             });
 
             points.sort((a, b) => {
@@ -126,24 +147,175 @@
                 return bz - az;
             });
 
-            updateAxisLines();
+            // Update axes position
+            g.select(".axes").attr("transform", `translate(${translation[0]},${translation[1]}) rotate(${rotation[1] * 180 / Math.PI},0,0)`);
         }
 
-        function updateAxisLines() {
-            const [rx, ry] = rotation;
-            const cosX = Math.cos(rx);
-            const sinX = Math.sin(rx);
-            const cosY = Math.cos(ry);
-            const sinY = Math.sin(ry);
+        function setupInteractions() {
+            if (isMobile) {
+                setupMobileInteractions();
+            } else {
+                setupDesktopInteractions();
+            }
 
-            axisLines.attr("x1", d => scale(d.start[0] * cosY - d.start[2] * sinY))
-                .attr("y1", d => scale(d.start[1] * cosX + (d.start[0] * sinY + d.start[2] * cosY) * sinX))
-                .attr("x2", d => scale(d.end[0] * cosY - d.end[2] * sinY))
-                .attr("y2", d => scale(d.end[1] * cosX + (d.end[0] * sinY + d.end[2] * cosY) * sinX));
+            // Zoom controls
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                zoomLevel *= 1.2;
+                updateScale();
+                updatePositions();
+            });
 
-            axisLabels.attr("x", d => scale(d.end[0] * cosY - d.end[2] * sinY))
-                .attr("y", d => scale(d.end[1] * cosX + (d.end[0] * sinY + d.end[2] * cosY) * sinX));
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                zoomLevel /= 1.2;
+                updateScale();
+                updatePositions();
+            });
+
+            // Image size control
+            const imageSizeButton = document.getElementById('image-size-control');
+            imageSizeButton.addEventListener('click', () => {
+                switch (imageSizeState) {
+                    case 'small':
+                        imageSize = 50;
+                        imageSizeState = 'medium';
+                        break;
+                    case 'medium':
+                        imageSize = 75;
+                        imageSizeState = 'large';
+                        break;
+                    case 'large':
+                        imageSize = 25;
+                        imageSizeState = 'small';
+                        break;
+                }
+                imageSizeButton.textContent = `Size: ${imageSizeState.charAt(0).toUpperCase() + imageSizeState.slice(1)}`;
+                points.selectAll("image")
+                    .attr("width", imageSize)
+                    .attr("height", imageSize)
+                    .attr("x", -imageSize/2)
+                    .attr("y", -imageSize/2);
+            });
         }
+
+        function setupDesktopInteractions() {
+            let lastX, lastY;
+            let isPanning = false;
+            let panningThreshold = 10;
+
+            svg.call(d3.drag()
+                .on("start", (event) => {
+                    lastX = event.x;
+                    lastY = event.y;
+                    isPanning = false;
+                })
+                .on("drag", (event) => {
+                    const dx = event.x - lastX;
+                    const dy = event.y - lastY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (!isPanning && distance > panningThreshold) {
+                        isPanning = event.sourceEvent.shiftKey;
+                    }
+
+                    if (isPanning) {
+                        translation[0] += dx;
+                        translation[1] += dy;
+                    } else {
+                        rotation[0] += dy * 0.005;
+                        rotation[1] += dx * 0.005;
+                    }
+                    updatePositions();
+                    lastX = event.x;
+                    lastY = event.y;
+                })
+                .on("end", () => {
+                    isPanning = false;
+                })
+            );
+        }
+
+        function setupMobileInteractions() {
+            let lastX, lastY, lastDist;
+            let touchInteraction = false;
+
+            svg.on("touchstart", (event) => {
+                event.preventDefault();
+                touchInteraction = true;
+                const touches = event.touches;
+                if (touches.length === 1) {
+                    lastX = touches[0].clientX;
+                    lastY = touches[0].clientY;
+                } else if (touches.length === 2) {
+                    lastX = (touches[0].clientX + touches[1].clientX) / 2;
+                    lastY = (touches[0].clientY + touches[1].clientY) / 2;
+                    lastDist = Math.hypot(
+                        touches[0].clientX - touches[1].clientX,
+                        touches[0].clientY - touches[1].clientY
+                    );
+                }
+            });
+
+            svg.on("touchmove", (event) => {
+                event.preventDefault();
+                if (!touchInteraction) return;
+                
+                const touches = event.touches;
+                if (touches.length === 1) {
+                    // One finger touch: rotate
+                    const dx = touches[0].clientX - lastX;
+                    const dy = touches[0].clientY - lastY;
+                    rotation[0] += dy * 0.005;
+                    rotation[1] += dx * 0.005;
+                    lastX = touches[0].clientX;
+                    lastY = touches[0].clientY;
+                } else if (touches.length === 2) {
+                    // Two finger touch: pan and zoom
+                    const currentX = (touches[0].clientX + touches[1].clientX) / 2;
+                    const currentY = (touches[0].clientY + touches[1].clientY) / 2;
+                    const currentDist = Math.hypot(
+                        touches[0].clientX - touches[1].clientX,
+                        touches[0].clientY - touches[1].clientY
+                    );
+                    
+                    // Pan
+                    translation[0] += currentX - lastX;
+                    translation[1] += currentY - lastY;
+                    
+                    // Zoom
+                    const zoomDelta = currentDist / lastDist;
+                    zoomLevel *= zoomDelta;
+                    updateScale();
+                    
+                    lastX = currentX;
+                    lastY = currentY;
+                    lastDist = currentDist;
+                }
+                updatePositions();
+            });
+
+            svg.on("touchend", () => {
+                touchInteraction = false;
+            });
+
+            // Prevent default touch behavior
+            document.body.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        }
+
+        function resizeGraph() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            initializeGraph();
+            if (points) {
+                updatePositions();
+            }
+        }
+
+        window.addEventListener('resize', resizeGraph);
+
+        initializeGraph();
+        loadData();
     </script>
 </body>
 </html>
